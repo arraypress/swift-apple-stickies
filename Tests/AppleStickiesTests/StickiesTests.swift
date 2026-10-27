@@ -10,6 +10,7 @@
 
 import AppKit
 import Foundation
+import RichText
 import XCTest
 @testable import AppleStickies
 
@@ -96,6 +97,27 @@ final class StickiesTests: XCTestCase {
         XCTAssertEqual(store.search("OAT MILK").map(\.id), [shopping], "case ignored")
         XCTAssertEqual(store.search("cafe").map(\.id), [loose], "accents ignored")
         XCTAssertEqual(store.search(" ").count, 0)
+    }
+
+    // MARK: - Writing (the service itself needs Stickies on screen: checked by hand)
+
+    func testMarkdownBecomesStickiesOwnStyles() throws {
+        let rtf = try XCTUnwrap(StickyPasteboard.rtf(markdown: "**Call** the _plumber_, not ~~Alex~~ — [quote](https://example.com/q)\nby Friday"))
+        XCTAssertEqual(RichText.markdown(rtf), "**Call** the _plumber_, not ~~Alex~~ — [quote](https://example.com/q)\nby Friday",
+                       "styles, links and the line break survive the trip through RTF")
+        let items = StickyPasteboard.items(text: "Call", rtf: rtf)
+        XCTAssertEqual(items.map(\.0), [.rtf, .string], "styled text first, plain text always")
+        XCTAssertEqual(StickyPasteboard.items(text: "Buy oat milk", rtf: nil).map(\.0), [.string])
+        XCTAssertEqual(StickyPasteboard.items(text: "Buy oat milk", rtf: nil).first?.1, Data("Buy oat milk".utf8))
+    }
+
+    func testTheNewNoteIsTheOneThatAppeared() throws {
+        let store = try makeStore()
+        let before = StickyPasteboard.noteFiles(in: store.folder)
+        XCTAssertEqual(before.count, 3, "only note bundles, not the state file")
+        XCTAssertNil(StickyPasteboard.newNote(before: before, after: before))
+        XCTAssertEqual(StickyPasteboard.newNote(before: before, after: before.union(["ABCD.rtfd"])), "ABCD")
+        XCTAssertNil(StickyPasteboard.newNote(before: before, after: before.union(["A.rtfd", "B.rtfd"])), "two at once: not ours to guess")
     }
 
     func testAMissingFolderSaysSo() {

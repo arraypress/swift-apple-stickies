@@ -15,7 +15,7 @@ let package = Package(
     ],
     targets: [
         .target(name: "AppleStickies", dependencies: [.product(name: "RichText", package: "swift-rich-text")]),
-        .testTarget(name: "AppleStickiesTests", dependencies: ["AppleStickies"]),
+        .testTarget(name: "AppleStickiesTests", dependencies: ["AppleStickies", .product(name: "RichText", package: "swift-rich-text")]),
     ]
 )
 
