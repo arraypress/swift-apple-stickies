@@ -1,0 +1,15 @@
+{
+  "originHash" : "56ed09a6511ae28bccf92bed303426a11c74e398331183f64f42c5369d4be023",
+  "pins" : [
+    {
+      "identity" : "swift-rich-text",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/arraypress/swift-rich-text.git",
+      "state" : {
+        "revision" : "021719b3f2dbab1d152249ba6b87d93db06a9772",
+        "version" : "0.1.0"
+      }
+    }
+  ],
+  "version" : 3
+}
